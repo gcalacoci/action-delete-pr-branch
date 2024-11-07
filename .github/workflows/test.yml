@@ -1,0 +1,36 @@
+name: Test pr branch delete action
+
+on:
+    push:
+        branches:
+            - main
+    workflow_dispatch:
+
+jobs:
+    main:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v2
+            - name: Create pr branch
+              id: pr-create
+              run: |
+                git config --global user.email "you@example.com"
+                git config --global user.name "gcalacoci"
+                git checkout -b pr-${{ github.run_id }}-${{ github.run_number }}-${{ github.run_attempt }}
+                touch test.txt
+                git add test.txt
+                git commit -m "Add test.txt"
+                git push -f origin pr-${{ github.run_id }}-${{ github.run_number }}-${{ github.run_attempt }}
+                gh pr create --title "Pull request ${{ github.run_id }}-${{ github.run_number }}-${{ github.run_attempt }}" --body "Pull request body"
+                echo "PR_NUMBER=$(gh pr list --state open --head pr-${{ github.run_id }}-${{ github.run_number }}-${{ github.run_attempt }} --json number --jq '.[].number')"
+                echo "PR_NUMBER=$(gh pr list --state merged --head pr-${{ github.run_id }}-${{ github.run_number }}-${{ github.run_attempt }} --json number --jq '.[].number')" >> "$GITHUB_OUTPUT"
+              env:
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            - name: print PR number
+              run: echo "${{ steps.pr-create.outputs.SELECTED_COLOR }}"
+            - name: Remove PRs head branch
+              uses: gcalacoci/action-delete-pr-branch@main
+              with:
+                  github_token: ${{ secrets.GITHUB_TOKEN }}
+                  number: ${{ steps.pr-create.outputs.SELECTED_COLOR }}

@@ -1,0 +1,17 @@
+name: Delete pr branch
+description: Delete a branch left from a pr from repository
+author: gcalacoci
+branding:
+  icon: git-branch
+  color: red
+inputs:
+  github_token:
+    description: GitHub token
+    required: true
+    default: ${{github.token}}
+  number:
+    description: PR number we want to delete the head branch
+    required: true
+runs:
+  using: node20
+  main: index.js
