@@ -13,8 +13,6 @@ async function main() {
             ...github.context.repo,
             pull_number: number
         })
-        console.log(`number ${number}`)
-        console.log(prPull)
         let repoOwner = github.context.repo.owner
         let repo = github.context.repo.repo
 
