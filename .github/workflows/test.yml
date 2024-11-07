@@ -1,0 +1,26 @@
+name: Test pr branch delete action
+
+on:
+    push:
+        branches:
+            - main
+    workflow_dispatch:
+
+jobs:
+    main:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v2
+            - name: Create pr branch
+              run: |
+                git checkout -b pr-{{github.run_id}}-{{github.run_number}}-{{github.run_attempt}}
+                git push -f pr-{{github.run_id}}-{{github.run_number}}-{{github.run_attempt}}
+                gh pr create --title "Pull request {{github.run_id}}-{{github.run_number}}-{{github.run_attempt}}" --body "Pull request body"
+                echo "PR_NUMBER=$(gh pr list --state merged --head pr-{{github.run_id}}-{{github.run_number}}-{{github.run_attempt}} --json number --jq '.[].number')" >> "$GITHUB_ENV"
+                
+            - name: Remove PRs head branch
+              uses: gcalacoci/action-delete-pr-branch@main
+              with:
+                  github_token: ${{github.token}}
+                  number: ${{env.PR_NUMBER}}
