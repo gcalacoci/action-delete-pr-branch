@@ -24,7 +24,8 @@ jobs:
                 git push -f origin pr-${{ github.run_id }}-${{ github.run_number }}-${{ github.run_attempt }}
                 gh pr create --title "Pull request ${{ github.run_id }}-${{ github.run_number }}-${{ github.run_attempt }}" --body "Pull request body"
                 echo "PR_NUMBER=$(gh pr list --state open --head pr-${{ github.run_id }}-${{ github.run_number }}-${{ github.run_attempt }} --json number --jq '.[].number')"
-                echo "PR_NUMBER=$(gh pr list --state merged --head pr-${{ github.run_id }}-${{ github.run_number }}-${{ github.run_attempt }} --json number --jq '.[].number')" >> "$GITHUB_OUTPUT"
+                echo "PR_NUMBER=$(gh pr list --state merged --head pr-${{ github.run_id }}-${{ github.run_number }}-${{ github.run_attempt }} --json number --jq '.[].number')"
+                echo "::set-output name=PR_NUMBER::$(gh pr list --state merged --head pr-${{ github.run_id }}-${{ github.run_number }}-${{ github.run_attempt }} --json number --jq '.[].number')"
               env:
                   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             - name: print PR number
