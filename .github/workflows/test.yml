@@ -14,13 +14,19 @@ jobs:
               uses: actions/checkout@v2
             - name: Create pr branch
               run: |
-                git checkout -b pr-{{github.run_id}}-{{github.run_number}}-{{github.run_attempt}}
-                git push -f pr-{{github.run_id}}-{{github.run_number}}-{{github.run_attempt}}
-                gh pr create --title "Pull request {{github.run_id}}-{{github.run_number}}-{{github.run_attempt}}" --body "Pull request body"
-                echo "PR_NUMBER=$(gh pr list --state merged --head pr-{{github.run_id}}-{{github.run_number}}-{{github.run_attempt}} --json number --jq '.[].number')" >> "$GITHUB_ENV"
-                
+                git config --global user.email "you@example.com"
+                git config --global user.name "gcalacoci"
+                git checkout -b pr-${{ github.run_id }}-${{ github.run_number }}-${{ github.run_attempt }}
+                touch test.txt
+                git add test.txt
+                git commit -m "Add test.txt"
+                git push -f origin pr-${{ github.run_id }}-${{ github.run_number }}-${{ github.run_attempt }}
+                gh pr create --title "Pull request ${{ github.run_id }}-${{ github.run_number }}-${{ github.run_attempt }}" --body "Pull request body"
+                echo "PR_NUMBER=$(gh pr list --state merged --head pr-${{ github.run_id }}-${{ github.run_number }}-${{ github.run_attempt }} --json number --jq '.[].number')" >> "$GITHUB_ENV"
+              env:
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             - name: Remove PRs head branch
               uses: gcalacoci/action-delete-pr-branch@main
               with:
-                  github_token: ${{github.token}}
+                  github_token: ${{ secrets.GITHUB_TOKEN }}
                   number: ${{env.PR_NUMBER}}
